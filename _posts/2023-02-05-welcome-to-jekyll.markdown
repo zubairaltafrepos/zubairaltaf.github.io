@@ -26,6 +26,34 @@ print_hi('Tom')
 resource "vault_namespace" "ns1" {
   path = "ns1"
 }
+
+resource "vault_auth_backend" "aws" {
+  type = "aws"
+  path = "aws"
+}
+
+resource "vault_aws_auth_backend_client" "example" {
+  backend    = vault_auth_backend.aws.path
+  access_key = "123456789012"
+  secret_key = "AWSSECRETKEYGOESHERE"
+}
+
+resource "vault_aws_auth_backend_role" "example" {
+  backend                         = vault_auth_backend.aws.path
+  role                            = "test-role"
+  auth_type                       = "ec2"
+  bound_ami_id                    = "ami-8c1be5f6"
+  bound_account_id                = "123456789012"
+  bound_vpc_id                    = "vpc-b61106d4"
+  bound_subnet_id                 = "vpc-133128f1"
+  bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  ttl                             = 60
+  max_ttl                         = 120
+  token_policies                  = ["default", "dev", "prod"]
+
+  depends_on                      = ["vault_aws_auth_backend_client.example"]
+}
+
 {% endhighlight %}
 
 Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
